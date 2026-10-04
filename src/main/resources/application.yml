@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: waste-service
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:wastedb}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Shanghai
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+    # MQ 不可用时关闭监听自动启动与 AmqpAdmin，事件总线降级为同步处理
+    dynamic: ${APP_MQ_ENABLED:true}
+    listener:
+      simple:
+        auto-startup: ${APP_MQ_ENABLED:true}
+
+app:
+  mq:
+    enabled: ${APP_MQ_ENABLED:true}
+
+# 计费与风控规则参数
+waste:
+  pricing:
+    bag-unit-price: 8.0          # 每袋清运费（元）
+    extra-bag-multiplier: 1.5    # 临时加袋费率倍数
+    avg-bag-weight-kg: 25.0      # 每袋预估重量（kg），用于称重异常比对
+    collector-price-per-ton: 120.0  # 清运公司结算单价（元/吨）
+    fire-lane-fine: 200.0        # 消防通道堆放罚款（元/次）
+    mixed-waste-fine: 100.0      # 混入生活垃圾罚款（元/次）
+    weigh-anomaly-threshold-pct: 20.0  # 称重偏差异常阈值（%）
+    capacity-warn-ratio: 0.9     # 垃圾点容量预警比例（超过则不允许直接通过预约）
+    late-tolerance-minutes: 30   # 车辆迟到容忍分钟数
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: info
+    com.waste: info

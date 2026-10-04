@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: reno-waste
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:reno_waste}?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USER:reno}
+    password: ${DB_PASSWORD:reno123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc.time_zone: Asia/Shanghai
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASSWORD:guest}
+    # 中间件不可用时不阻断业务，事件发布器会自动降级为同步处理
+    listener:
+      simple:
+        auto-startup: ${RABBIT_LISTENER_AUTOSTART:true}
+        missing-queues-fatal: false
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 2
+    template:
+      mandatory: false
+
+app:
+  auth:
+    # 演示用静态令牌：角色 -> token
+    tokens:
+      property: property-token
+      company: company-token
+      finance: finance-token
+      crew: crew-token
+      owner: owner-token
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.community.waste: INFO
